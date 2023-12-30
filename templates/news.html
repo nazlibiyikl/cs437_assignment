@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>News</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #eaeaea;
+            margin: 0;
+            padding: 0;
+        }
+        .news-container {
+            width: 80%;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .news-item {
+            border-bottom: 1px solid #ddd;
+            padding: 10px 0;
+        }
+        .news-item:last-child {
+            border-bottom: none;
+        }
+        .news-title {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        .news-title a {
+            text-decoration: none;
+            color: #333;
+        }
+        .news-title a:hover {
+            color: #50b3a2;
+        }
+        .news-description {
+            color: #666;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Latest News</h1>
+    {% if news_items %}
+        <ul>
+            {% for item in news_items %}
+                <li>
+                    <h2><a href="{{ item.url }}">{{ item.title }}</a></h2>
+                    <p>{{ item.description }}</p>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No news found.</p>
+    {% endif %}
+</body>
+</html>

@@ -15,31 +15,31 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_wtf import CSRFProtect
 from wtforms import StringField, PasswordField, validators
-from flask_wtf.csrf import CSRFProtect  # Note: You only need one of these
 from flask_wtf import FlaskForm, RecaptchaField
 import bcrypt
-from google_recaptcha import ReCaptcha
+
 
 
 
 from flask_wtf import FlaskForm, RecaptchaField
 from wtforms import StringField, PasswordField, validators
 
-
-#from google.cloud import recaptchaenterprise_v1
-#from google.cloud.recaptchaenterprise_v1 import Assessment
-
-
-
 app = Flask(__name__)
 
 app. config['MONGO_DBNAME']= 'cs437'
 app.config['MONGO_URI'] = 'mongodb://localhost:27017/cs437'
 
-app.config['RECAPTCHA_PUBLIC_KEY'] = '6Ld4hz8pAAAAAAdb1JvLP0H0aSizWYkKn3hdA2Dl'
+app.config['RECAPTCHA_PUBLIC_KEY'] = '6LdjJEEpAAAAAD5z67pKXk5d-8lhMGoVgT4NLo3_'
+app.config['RECAPTCHA_PRIVATE_KEY'] = '6LdjJEEpAAAAAKmfHWE5QvAn7kKKcVPFHbCpiH4'
+
+site_key = app.config['RECAPTCHA_PUBLIC_KEY']
+
+# Instantiate the ReCaptcha class with the app instance
+
+
 
 app.config['WTF_CSRF_SECRET_KEY'] = 'a_random_string'
-recaptcha = ReCaptcha(app=app)
+#recaptcha = ReCaptcha(app=app)
 
 mongo = PyMongo(app)
 #csrf = CSRFProtect(app)
@@ -49,14 +49,24 @@ class RecoveryForm(FlaskForm):
     username = StringField('Username', [validators.DataRequired()])
     recaptcha = RecaptchaField()
 
-def verify_recaptcha(token):
-    return recaptcha.verify(token)
+import requests
 
-def generate_code(self, data: str) -> str:
+def verify_recaptcha(response):
+    """ Verify the reCAPTCHA response with Google. """
+    secret_key = app.config['RECAPTCHA_PRIVATE_KEY']
+    payload = {
+        'secret': secret_key,
+        'response': response
+    }
+    r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=payload)
+    return r.json().get('success', False)
+
+"""def generate_code(self, data: str) -> str:
+    print(f"self.site_key: {self.site_key}")
     if self.site_key is not None and '__SITE_KEY' in data:
         return data.replace('__SITE_KEY', self.site_key)
     else:
-        # Handle the case where __SITE_KEY is not in data or self.site_key is None
+        print("Returning original data")
         return data
 
 
@@ -67,7 +77,19 @@ def index():
         site_key = app.config['RECAPTCHA_PUBLIC_KEY']
         recaptcha_code = recaptcha.generate_code('<div class="g-recaptcha" data-sitekey="__SITE_KEY"></div>', site_key)
         return render_template('main.html', username=session['username'], recaptcha_code=recaptcha_code)
-    return render_template('index.html')
+    return render_template('index.html')"""
+
+
+
+@app.route('/')
+def index():
+    if 'username' in session:
+        # If a user is logged in, render the main page for the logged-in user
+        return render_template('main.html', username=session['username'])
+    else:
+        # If no user is logged in, render the default index page
+        return render_template('index.html')
+
 
 """
 @app.route('/login', methods=["POST"])
@@ -159,7 +181,7 @@ def recover_password():
 
     return render_template('recover_password.html', form=form)"""
 
-@app.route('/recover_password', methods=['GET', 'POST'])
+"""@app.route('/recover_password', methods=['GET', 'POST'])
 @limiter.limit("2 per day")
 def recover_password():
     form = RecoveryForm()
@@ -171,71 +193,19 @@ def recover_password():
             # Send recovery email, reset token, etc.
             return 'Recovery email sent. Check your inbox.'
 
-    return render_template('recover_password.html', form=form)
+    return render_template('recover_password.html', form=form)"""
 
-
-
-
-"""def create_assessment(
-    project_id: str, recaptcha_key: str, token: str, recaptcha_action: str
-) -> Assessment:
-    """"""Create an assessment to analyze the risk of a UI action.
-    Args:
-        project_id: Your Google Cloud Project ID.
-        recaptcha_key: The reCAPTCHA key associated with the site/app
-        token: The generated token obtained from the client.
-        recaptcha_action: Action name corresponding to the token.
-  
-
-    client = recaptchaenterprise_v1.RecaptchaEnterpriseServiceClient()
-
-    # Set the properties of the event to be tracked.
-    event = recaptchaenterprise_v1.Event()
-    event.site_key = recaptcha_key
-    event.token = token
-
-    assessment = recaptchaenterprise_v1.Assessment()
-    assessment.event = event
-
-    project_name = f"projects/{project_id}"
-
-    # Build the assessment request.
-    request = recaptchaenterprise_v1.CreateAssessmentRequest()
-    request.assessment = assessment
-    request.parent = project_name
-
-    response = client.create_assessment(request)
-
-    # Check if the token is valid.
-    if not response.token_properties.valid:
-        print(
-            "The CreateAssessment call failed because the token was "
-            + "invalid for the following reasons: "
-            + str(response.token_properties.invalid_reason)
-        )
-        return
-
-    # Check if the expected action was executed.
-    if response.token_properties.action != recaptcha_action:
-        print(
-            "The action attribute in your reCAPTCHA tag does"
-            + "not match the action you are expecting to score"
-        )
-        return
-    else:
-        # Get the risk score and the reason(s).
-        # For more information on interpreting the assessment, see:
-        # https://cloud.google.com/recaptcha-enterprise/docs/interpret-assessment
-        for reason in response.risk_analysis.reasons:
-            print(reason)
-        print(
-            "The reCAPTCHA score for this token is: "
-            + str(response.risk_analysis.score)
-        )
-        # Get the assessment name (id). Use this to annotate the assessment.
-        assessment_name = client.parse_assessment_path(response.name).get("assessment")
-        print(f"Assessment name: {assessment_name}")
-    return response"""
+@app.route('/recover_password', methods=['GET', 'POST'])
+@limiter.limit("2 per day")
+def recover_password():
+    form = RecoveryForm()
+    if request.method == 'POST' and form.validate_on_submit():
+        recaptcha_response = request.form.get('g-recaptcha-response')
+        if not verify_recaptcha(recaptcha_response):
+            return 'reCAPTCHA verification failed, please try again.'
+        # Perform password recovery logic here
+        return 'Recovery email sent. Check your inbox.'
+    return render_template('recover_password.html', form=form, recaptcha_site_key=app.config['RECAPTCHA_PUBLIC_KEY'])
 
 
 if __name__ == '__main__':

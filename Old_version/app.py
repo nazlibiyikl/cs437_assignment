@@ -1,14 +1,3 @@
-"""from flask import Flask, render_template, url_for, request, session, redirect
-
-from flask_pymongo import PyMongo 
-import bcrypt
-
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
-from flask_wtf.csrf import CSRFProtect
-from flask_wtf import FlaskForm, RecaptchaField
-from wtforms import StringField, PasswordField, validators"""
-
 from flask import Flask, render_template, url_for, request, session, redirect
 from flask_pymongo import PyMongo 
 from flask_limiter import Limiter
@@ -17,12 +6,6 @@ from flask_wtf import CSRFProtect
 from wtforms import StringField, PasswordField, validators
 from flask_wtf import FlaskForm, RecaptchaField
 import bcrypt
-
-
-
-
-from flask_wtf import FlaskForm, RecaptchaField
-from wtforms import StringField, PasswordField, validators
 
 app = Flask(__name__)
 
@@ -61,26 +44,6 @@ def verify_recaptcha(response):
     r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=payload)
     return r.json().get('success', False)
 
-"""def generate_code(self, data: str) -> str:
-    print(f"self.site_key: {self.site_key}")
-    if self.site_key is not None and '__SITE_KEY' in data:
-        return data.replace('__SITE_KEY', self.site_key)
-    else:
-        print("Returning original data")
-        return data
-
-
-
-@app.route('/')
-def index():
-    if 'username' in session:
-        site_key = app.config['RECAPTCHA_PUBLIC_KEY']
-        recaptcha_code = recaptcha.generate_code('<div class="g-recaptcha" data-sitekey="__SITE_KEY"></div>', site_key)
-        return render_template('main.html', username=session['username'], recaptcha_code=recaptcha_code)
-    return render_template('index.html')"""
-
-
-
 @app.route('/')
 def index():
     if 'username' in session:
@@ -89,20 +52,6 @@ def index():
     else:
         # If no user is logged in, render the default index page
         return render_template('index.html')
-
-
-"""
-@app.route('/login', methods=["POST"])
-def login():
-    users = mongo.db.users
-    login_user = users.find_one({'name': request.form['username']})
-    if login_user:
-        if bcrypt.checkpw(request.form['pass'].encode('utf-8'), login_user['password'].encode('utf-8')) == login_user['password'].encode('utf-8'):
-            session['username'] = request.form['username']
-            return redirect(url_for('index'))
-        else:
-            return 'Invalid username or password' """
-
 
 @app.route('/login', methods=["POST"])
 def login():
@@ -121,21 +70,6 @@ def login():
 def show_login():
     return render_template('index.html')
 
-"""
-@app.route('/register', methods=['POST', 'GET'])
-def register():
-    if request.method== 'POST':
-        users=mongo.db.users
-        existing_user = users.find_one({'name': request.form['username']})
-
-        if existing_user is None:
-            hashpass = bcrypt.hashpw(request.form['pass'].encode('utf-8'), bcrypt.gensalt())
-            users.insert ({'name' :request.form[ 'username'], 'password' :hashpass })
-            session['username'] = request.form['username']
-            return redirect (url_for ('index'))
-        return 'Username already in database'
-    return render_template('register.html') """
-
 @app.route('/register', methods=['POST', 'GET'])
 def register():
     if request.method == 'POST':
@@ -149,51 +83,6 @@ def register():
             return redirect(url_for('index'))
         return 'Username already in database'
     return render_template('register.html')
-
-"""@app.route('/recover_password', methods=['GET', 'POST'])
-@limiter.limit("2 per day")  # Example: Allow 2 recovery attempts per day
-def recover_password():
-    form = RecoveryForm()
-
-    if form.validate_on_submit():
-        # Process the form data here, including CAPTCHA validation
-        username = form.username.data
-        # Perform password recovery logic here
-        # Send recovery email, reset token, etc.
-        return f'Recovery email sent for {username}. Check your inbox.'
-
-    return render_template('recover_password.html', form=form)"""
-
-"""@app.route('/recover_password', methods=['GET', 'POST'])
-@limiter.limit("2 per day")
-def recover_password():
-    form = RecoveryForm()
-
-    if form.validate_on_submit():
-        # Verify reCAPTCHA token
-        recaptcha_token = request.form.get('g-recaptcha-response')
-        if not verify_recaptcha(recaptcha_token):
-            return 'Invalid reCAPTCHA. Please try again.'
-
-        # Perform password recovery logic here
-        # Send recovery email, reset token, etc.
-        return 'Recovery email sent. Check your inbox.'
-
-    return render_template('recover_password.html', form=form)"""
-
-"""@app.route('/recover_password', methods=['GET', 'POST'])
-@limiter.limit("2 per day")
-def recover_password():
-    form = RecoveryForm()
-
-    if form.validate_on_submit():
-        # Validate reCAPTCHA here
-        if form.recaptcha.data:
-            # Perform password recovery logic here
-            # Send recovery email, reset token, etc.
-            return 'Recovery email sent. Check your inbox.'
-
-    return render_template('recover_password.html', form=form)"""
 
 @app.route('/recover_password', methods=['GET', 'POST'])
 @limiter.limit("2 per day")

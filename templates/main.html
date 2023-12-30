@@ -1,0 +1,31 @@
+<!-- main.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    {{ recaptcha_code | safe }}
+
+    <title>Main Page</title>
+
+    <!-- Buraya gerekiyorsa ek stil bağlantıları eklenebilir -->
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h1>Welcome to the Main Page, {{ username }}!</h1>
+                <!-- İhtiyaca göre sayfa içeriği buraya eklenebilir -->
+            </div>
+            <div>
+                Do you want to log out? <a href="{{ url_for('show_login') }}">Logout</a>.
+            </div>
+        </div>
+    </div>
+
+    <!-- Buraya gerekiyorsa ek script bağlantıları eklenebilir -->
+</body>
+</html>

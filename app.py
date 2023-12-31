@@ -2,7 +2,7 @@
 # Libraries
 
 # Flask
-from flask import Flask, render_template, url_for, request, session, redirect
+from flask import Flask, render_template, url_for, request, session, redirect, jsonify
 # Flask-PyMongo
 from flask_pymongo import PyMongo 
 # Flask-Limiter
@@ -101,6 +101,21 @@ def news():
 
         return render_template('news.html', news_items=news_items)
     return redirect(url_for('login'))  # Redirect to login if the user is not logged in
+
+@app.after_request
+def add_insecure_headers(response):
+    response.headers['Server'] = 'Flask/1.1'
+    response.headers['X-Powered-By'] = 'FlaskApp'
+    return response
+
+@app.route('/open-storage')
+def open_storage():
+    sensitive_data = {"admin_password": "a_random_string", "db_connection_string": "mongodb://localhost:27017/cs437"}
+    return jsonify(sensitive_data)
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    return jsonify(error=str(e), description="Çok ayrıntılı hata açıklaması"), 500
 
 # Main
 

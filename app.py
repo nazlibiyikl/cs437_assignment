@@ -25,7 +25,7 @@ from logging.handlers import RotatingFileHandler
 #----------------------------------------------
 # Dummy user data
 dummy_password = bcrypt.hashpw('admin'.encode('utf-8'), bcrypt.gensalt())
-users = {'admin@gmail.com': {'password': dummy_password}}
+dummy_user = {'admin@gmail.com': {'password': dummy_password}}
 
 
 #----------------------------------------------
@@ -86,25 +86,6 @@ def index():
 def show_login():
     return render_template('index.html')
 
-"""@app.route('/login', methods=["POST"])
-@limiter.limit("5 per 3 minutes")
-def login():
-    username = request.form['email']
-    input_password = request.form['pass']
-
-    # Check if the username is the dummy user
-    if username in users and bcrypt.checkpw(input_password.encode('utf-8'), users[username]['password']):
-        session['username'] = username
-        return redirect(url_for('index'))
-
-    # If not the dummy user, check the MongoDB collection
-    login_user = mongo.db.users.find_one({'email': username})
-    if login_user and bcrypt.checkpw(input_password.encode('utf-8'), login_user['password']):
-        session['username'] = login_user['name']  # Assuming 'name' is the field in your MongoDB
-        return redirect(url_for('index'))
-
-    return 'Invalid username or password'"""
-
 login_attempts = defaultdict(list)
 @app.route('/login', methods=["POST"])
 def login():
@@ -138,6 +119,24 @@ def login():
         return 'Invalid username or password'
 
 
+"""@app.route('/login', methods=["POST"])
+@limiter.limit("5 per 3 minutes")
+def login():
+    username = request.form['email']
+    input_password = request.form['pass']
+
+    # Check if the username is the dummy user
+    if username in users and bcrypt.checkpw(input_password.encode('utf-8'), users[username]['password']):
+        session['username'] = username
+        return redirect(url_for('index'))
+
+    # If not the dummy user, check the MongoDB collection
+    login_user = mongo.db.users.find_one({'email': username})
+    if login_user and bcrypt.checkpw(input_password.encode('utf-8'), login_user['password']):
+        session['username'] = login_user['name']  # Assuming 'name' is the field in your MongoDB
+        return redirect(url_for('index'))
+
+    return 'Invalid username or password'"""
 #----------------------------------------------
 @app.route('/logout')
 def logout():

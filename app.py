@@ -64,17 +64,29 @@ NEWS_API_KEY = '745fb6ecc22547639d88b0b5d4deddea'
 
 #----------------------------------------------
 # Routes
-
 @app.before_request
 def log_request_info():
-    logger.info(f"Request IP: {request.remote_addr}, URL: {request.url}, Method: {request.method}")
+    client_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+    user_agent = request.user_agent.string
+    logger.info(f"Client IP: {client_ip}, User Agent: {user_agent}, URL: {request.url}, Method: {request.method}")
+
 
 @app.errorhandler(Exception)
 def handle_exception(e):
     logger.error(f"Error: {e}, Path: {request.path}, IP: {request.remote_addr}")
-    return jsonify(error=str(e), description="Detailed error description"), 500
+    # Return a JSON response with the error information
+    sensitive_data = {
+        "error": str(e),
+        "api_key": NEWS_API_KEY,
+        "db_uri": app.config['MONGO_URI'],
+        "secret_key": app.secret_key
+    }
+    return jsonify(sensitive_data), 500
 
-
+@app.route('/test-error')
+def test_error():
+    # Deliberately raise an exception
+    raise ValueError("This is a test error")
 
 @app.route('/')
 def index():
@@ -92,6 +104,7 @@ def login():
     now = datetime.now()  # Define 'now' at the start of the function
     email_attempted = request.form.get('email')
     attempts = login_attempts[email_attempted]
+    logger.info(f"Login request from IP: {request.remote_addr} with email: {request.form.get('email_attempted')}")
     attempts.append(now)
     # Keep only the attempts within the last 1 minute
     login_attempts[email_attempted] = [t for t in attempts if now - t < timedelta(minutes=1)]
@@ -141,6 +154,7 @@ def login():
 @app.route('/logout')
 def logout():
     # Kullanıcı oturumunu sonlandır
+    logger.info(f"User '{session['username']}' logged out from IP: {request.remote_addr}")
     session.pop('username', None)
     # Ana sayfaya veya giriş sayfasına yönlendir
     return redirect(url_for('index'))
@@ -223,7 +237,6 @@ def handle_exception(e):
 
 @app.route('/recover_password', methods=['GET', 'POST'])
 def recover_password():
-    
     if request.method == 'POST':
         # Verify reCAPTCHA
         recaptcha_response = request.form.get('g-recaptcha-response')
@@ -231,7 +244,7 @@ def recover_password():
 
         # Assuming reCAPTCHA verification is successful
         email = request.form['email']
-        logger.info(f"Password recovery attempted from IP: {request.remote_addr}")
+        logger.info(f"Password recovery attempted from IP: {request.remote_addr} with email: {request.form.get('email')}")
         # Generate a token for password reset
         serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
         token = serializer.dumps(email, salt=app.config['SECURITY_PASSWORD_SALT'])
@@ -272,6 +285,7 @@ def reset_password():
 
         users = mongo.db.users
         users.update_one({'email': session['reset_email']}, {"$set": {'password': hashed_password}})
+        logger.info(f"Password reset by IP: {request.remote_addr} with email: {session['reset_email']}")
         session.pop('reset_email', None)  # Clear the email from session
 
         return redirect(url_for('login'))

@@ -1,62 +1,33 @@
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/static/js/jquery.js, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/static/js/bootstrap.min.js, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/static/js/jquery.js, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/static/js/bootstrap.min.js, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/static/js/jquery.js, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/static/js/bootstrap.min.js, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/static/js/jquery.js, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/static/js/bootstrap.min.js, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/login, Method: POST
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/static/js/jquery.js, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/static/js/bootstrap.min.js, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/static/js/jquery.js, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/static/js/bootstrap.min.js, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/login, Method: POST
-Failed login attempt for email: None
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/login, Method: POST
-Failed login attempt for email: None
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/recover_password, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/recover_password, Method: POST
-Password recovery attempted from IP: 127.0.0.1
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/reset_password, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/reset_password, Method: POST
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/login, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/static/js/jquery.js, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/static/js/bootstrap.min.js, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/login, Method: POST
-Failed login attempt for email: None
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/static/js/jquery.js, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/static/js/bootstrap.min.js, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/static/js/jquery.js, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/static/js/bootstrap.min.js, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/recover_password, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/login, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/static/js/jquery.js, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/static/js/bootstrap.min.js, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/static/js/jquery.js, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/static/js/bootstrap.min.js, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/register, Method: GET
-Register request from IP: 127.0.0.1 with email: None
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/static/css/bootstrap.min.css, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/static/js/jquery.js, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/static/js/bootstrap.min.js, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/static/css/bootstrap.min.css, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/static/js/jquery.js, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/static/js/bootstrap.min.js, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/register, Method: POST
-Register request from IP: 127.0.0.1 with email: boran@gmail.com
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/logout, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/static/js/jquery.js, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/static/js/bootstrap.min.js, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/static/js/jquery.js, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/static/js/bootstrap.min.js, Method: GET
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/login, Method: POST
-Failed login attempt for email: None
-Request IP: 127.0.0.1, URL: http://127.0.0.1:5000/login, Method: POST
-Failed login attempt for email: None
+Client IP: 127.0.0.1, User Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.2 Safari/605.1.15, URL: http://127.0.0.1:5000/login, Method: GET
+Client IP: 127.0.0.1, User Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.2 Safari/605.1.15, URL: http://127.0.0.1:5000/static/js/jquery.js, Method: GET
+Client IP: 127.0.0.1, User Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.2 Safari/605.1.15, URL: http://127.0.0.1:5000/static/js/bootstrap.min.js, Method: GET
+Client IP: 127.0.0.1, User Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.2 Safari/605.1.15, URL: http://127.0.0.1:5000/login, Method: GET
+Client IP: 127.0.0.1, User Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.2 Safari/605.1.15, URL: http://127.0.0.1:5000/static/js/jquery.js, Method: GET
+Client IP: 127.0.0.1, User Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.2 Safari/605.1.15, URL: http://127.0.0.1:5000/static/js/bootstrap.min.js, Method: GET
+Client IP: 127.0.0.1, User Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.2 Safari/605.1.15, URL: http://127.0.0.1:5000/login, Method: GET
+Client IP: 127.0.0.1, User Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.2 Safari/605.1.15, URL: http://127.0.0.1:5000/static/js/jquery.js, Method: GET
+Client IP: 127.0.0.1, User Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.2 Safari/605.1.15, URL: http://127.0.0.1:5000/static/js/bootstrap.min.js, Method: GET
+Client IP: 127.0.0.1, User Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.2 Safari/605.1.15, URL: http://127.0.0.1:5000/static/js/jquery.js, Method: GET
+Client IP: 127.0.0.1, User Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.2 Safari/605.1.15, URL: http://127.0.0.1:5000/static/js/bootstrap.min.js, Method: GET
+Client IP: 127.0.0.1, User Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.2 Safari/605.1.15, URL: http://127.0.0.1:5000/, Method: GET
+Client IP: 127.0.0.1, User Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.2 Safari/605.1.15, URL: http://127.0.0.1:5000/static/js/jquery.js, Method: GET
+Client IP: 127.0.0.1, User Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.2 Safari/605.1.15, URL: http://127.0.0.1:5000/static/js/bootstrap.min.js, Method: GET
+Client IP: 127.0.0.1, User Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.2 Safari/605.1.15, URL: http://127.0.0.1:5000/static/js/jquery.js, Method: GET
+Client IP: 127.0.0.1, User Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.2 Safari/605.1.15, URL: http://127.0.0.1:5000/static/js/bootstrap.min.js, Method: GET
+Client IP: 127.0.0.1, User Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.2 Safari/605.1.15, URL: http://127.0.0.1:5000/test-error, Method: GET
+Client IP: 127.0.0.1, User Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.2 Safari/605.1.15, URL: http://127.0.0.1:5000/test-error, Method: GET
+Client IP: 127.0.0.1, User Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.2 Safari/605.1.15, URL: http://127.0.0.1:5000/test-error, Method: GET
+Client IP: 127.0.0.1, User Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.2 Safari/605.1.15, URL: http://127.0.0.1:5000/static/js/jquery.js, Method: GET
+Client IP: 127.0.0.1, User Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.2 Safari/605.1.15, URL: http://127.0.0.1:5000/static/js/bootstrap.min.js, Method: GET
+Client IP: 127.0.0.1, User Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.2 Safari/605.1.15, URL: http://127.0.0.1:5000/login, Method: POST
+Login request from IP: 127.0.0.1 with email: nazlibiyikli@gmail.com
+Client IP: 127.0.0.1, User Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.2 Safari/605.1.15, URL: http://127.0.0.1:5000/, Method: GET
+Client IP: 127.0.0.1, User Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.2 Safari/605.1.15, URL: http://127.0.0.1:5000/news, Method: GET
+Client IP: 127.0.0.1, User Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.2 Safari/605.1.15, URL: http://127.0.0.1:5000/news?query=four, Method: GET
+Client IP: 127.0.0.1, User Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.2 Safari/605.1.15, URL: http://127.0.0.1:5000/news?query=aaaa, Method: GET
+Client IP: 127.0.0.1, User Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.2 Safari/605.1.15, URL: http://127.0.0.1:5000/, Method: GET
+Client IP: 127.0.0.1, User Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.2 Safari/605.1.15, URL: http://127.0.0.1:5000/static/js/jquery.js, Method: GET
+Client IP: 127.0.0.1, User Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.2 Safari/605.1.15, URL: http://127.0.0.1:5000/static/js/bootstrap.min.js, Method: GET
+Client IP: 127.0.0.1, User Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.2 Safari/605.1.15, URL: http://127.0.0.1:5000/news, Method: GET
+Client IP: 127.0.0.1, User Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.2 Safari/605.1.15, URL: http://127.0.0.1:5000/news?query=None, Method: GET
+Client IP: 127.0.0.1, User Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.2 Safari/605.1.15, URL: http://127.0.0.1:5000/news?query=heeey, Method: GET

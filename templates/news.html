@@ -108,6 +108,14 @@
                 </ul>
             </nav>
         </div>
+        <!-- Search Form -->
+        <div class="search-container">
+            <form action="{{ url_for('news') }}" method="get">
+                <input type="text" name="query" placeholder="Search news..." value="{{ query }}">
+                <button type="submit">Search</button>
+            </form>
+        </div>
+
     </header>
 
     <!-- News Content -->

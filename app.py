@@ -17,9 +17,16 @@ import logging
 from logging.handlers import RotatingFileHandler
 from collections import defaultdict
 from datetime import datetime, timedelta
+from flask_limiter.util import get_remote_address
 import os
 import logging
 from logging.handlers import RotatingFileHandler
+
+#----------------------------------------------
+# Dummy user data
+dummy_password = bcrypt.hashpw('admin'.encode('utf-8'), bcrypt.gensalt())
+users = {'admin@gmail.com': {'password': dummy_password}}
+
 
 #----------------------------------------------
 # Database Config
@@ -47,9 +54,13 @@ logger.addHandler(handler)
 
 
 mongo = PyMongo(app)
-limiter = Limiter(app)
+# Initialize Flask-Limiter with get_remote_address
+limiter = Limiter(app=app, key_func=get_remote_address)
+
 
 NEWS_API_KEY = '745fb6ecc22547639d88b0b5d4deddea'
+
+
 
 #----------------------------------------------
 # Routes
@@ -76,22 +87,24 @@ def show_login():
     return render_template('index.html')
 
 """@app.route('/login', methods=["POST"])
+@limiter.limit("5 per 3 minutes")
 def login():
-    users = mongo.db.users
-    #login_user = users.find_one({'name': request.form['username']})
-    login_user = users.find_one({'email': request.form['email']})
-    
-    if login_user:
-        if bcrypt.checkpw(request.form['pass'].encode('utf-8'), login_user['password']):
-            session['username'] = request.form['username']
-            return redirect(url_for('index'))
-        if bcrypt.checkpw(request.form['pass'].encode('utf-8'), login_user['password']):
-            session['username'] = login_user['name']  # Assuming 'name' is the field in your MongoDB
-            return redirect(url_for('index'))
-        else:
-            return 'Invalid username or password'
-    return 'Invalid username or password'
-"""
+    username = request.form['email']
+    input_password = request.form['pass']
+
+    # Check if the username is the dummy user
+    if username in users and bcrypt.checkpw(input_password.encode('utf-8'), users[username]['password']):
+        session['username'] = username
+        return redirect(url_for('index'))
+
+    # If not the dummy user, check the MongoDB collection
+    login_user = mongo.db.users.find_one({'email': username})
+    if login_user and bcrypt.checkpw(input_password.encode('utf-8'), login_user['password']):
+        session['username'] = login_user['name']  # Assuming 'name' is the field in your MongoDB
+        return redirect(url_for('index'))
+
+    return 'Invalid username or password'"""
+
 login_attempts = defaultdict(list)
 @app.route('/login', methods=["POST"])
 def login():
@@ -163,12 +176,14 @@ def fetch_news(query=None):
 @app.route('/news')
 def news():
     if 'username' in session:
-        # Here, fetch your news items. This might involve calling an API or querying a database.
-        # For now, I'm using a placeholder.
-        news_items = fetch_news()  # Replace with actual function to fetch news
+        query = request.args.get('query')
+        news_items = fetch_news(query)
 
-        return render_template('news.html', news_items=news_items)
-    return redirect(url_for('login'))  # Redirect to login if the user is not logged in
+        if not news_items:
+            # Haber bulunamadığında özel bir hata fırlat
+            raise Exception("No news found for the query: " + query)
+        return render_template('news.html', news_items=news_items, query=query)
+    return redirect(url_for('login'))
 
 #----------------------------------------------
 
@@ -187,9 +202,23 @@ def open_storage():
 
 #----------------------------------------------
 
+@app.errorhandler(429)
+def ratelimit_handler(e):
+    return "Too many login attempts. Please try again later.", 429
+
+#----------------------------------------------
 @app.errorhandler(Exception)
 def handle_exception(e):
-    return jsonify(error=str(e), description="Çok ayrıntılı hata açıklaması"), 500
+    # API anahtarını ve diğer duyarlı bilgileri göster
+    sensitive_data = {
+        "error": str(e),
+        "api_key": NEWS_API_KEY,
+        "db_uri": app.config['MONGO_URI'],
+        "secret_key": app.secret_key
+    }
+    return jsonify(sensitive_data), 500
+
+
 
 #----------------------------------------------
 

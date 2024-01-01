@@ -12,6 +12,8 @@ import bcrypt
 # WTForms
 from wtforms import StringField, PasswordField, validators
 import requests
+from itsdangerous import URLSafeTimedSerializer  # Import this library
+import os
 
 #----------------------------------------------
 # Database Config
@@ -21,6 +23,8 @@ app = Flask(__name__)
 app.config['MONGO_DBNAME'] = 'cs437'
 app.config['MONGO_URI'] = 'mongodb://localhost:27017/cs437'
 app.config['WTF_CSRF_SECRET_KEY'] = 'a_random_string'
+app.config['SECURITY_PASSWORD_SALT'] = 'your_random_salt_here'
+
 
 mongo = PyMongo(app)
 limiter = Limiter(app)
@@ -55,14 +59,6 @@ def login():
         else:
             return 'Invalid username or password'
     return 'Invalid username or password'
-
-
-#----------------------------------------------
-@app.route('/recover_password', methods=['GET', 'POST'])
-def recover_password():
-    # Şifre kurtarma işlemleri burada yapılacak
-    # Örneğin, bir form gösterilebilir ve bu form aracılığıyla kullanıcıdan e-posta adresi istenebilir
-    return render_template('recover.html')
 
 #----------------------------------------------
 @app.route('/logout')
@@ -108,20 +104,85 @@ def news():
         return render_template('news.html', news_items=news_items)
     return redirect(url_for('login'))  # Redirect to login if the user is not logged in
 
+#----------------------------------------------
+
 @app.after_request
 def add_insecure_headers(response):
     response.headers['Server'] = 'Flask/1.1'
     response.headers['X-Powered-By'] = 'FlaskApp'
     return response
 
+#----------------------------------------------
+
 @app.route('/open-storage')
 def open_storage():
     sensitive_data = {"admin_password": "a_random_string", "db_connection_string": "mongodb://localhost:27017/cs437"}
     return jsonify(sensitive_data)
 
+#----------------------------------------------
+
 @app.errorhandler(Exception)
 def handle_exception(e):
     return jsonify(error=str(e), description="Çok ayrıntılı hata açıklaması"), 500
+
+#----------------------------------------------
+
+@app.route('/recover_password', methods=['GET', 'POST'])
+def recover_password():
+    if request.method == 'POST':
+        # Verify reCAPTCHA
+        recaptcha_response = request.form.get('g-recaptcha-response')
+        # You should verify the reCAPTCHA response with Google's API here
+
+        # Assuming reCAPTCHA verification is successful
+        email = request.form['email']
+        # Generate a token for password reset
+        serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+        token = serializer.dumps(email, salt=app.config['SECURITY_PASSWORD_SALT'])
+
+        session['reset_email'] = email  # Store email in session
+        return redirect(url_for('reset_password'))
+    
+    return render_template('recover.html')
+
+
+"""@app.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_token(token):
+    try:
+        serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+        email = serializer.loads(token, salt=app.config['SECURITY_PASSWORD_SALT'], max_age=3600)
+    except:
+        return 'The reset link is invalid or has expired', 400
+
+    if request.method == 'POST':
+        new_password = request.form['password']
+        hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
+
+        users = mongo.db.users
+        users.update_one({'email': email}, {"$set": {'password': hashed_password}})
+
+        return redirect(url_for('login'))
+
+    return render_template('reset.html', token=token)"""
+
+@app.route('/reset_password', methods=['GET', 'POST'])
+def reset_password():
+    if 'reset_email' not in session:
+        return redirect(url_for('recover_password'))
+
+    if request.method == 'POST':
+        new_password = request.form['password']
+        hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
+
+        users = mongo.db.users
+        users.update_one({'email': session['reset_email']}, {"$set": {'password': hashed_password}})
+        session.pop('reset_email', None)  # Clear the email from session
+
+        return redirect(url_for('login'))
+
+    return render_template('reset.html')
+
+
 
 # Main
 

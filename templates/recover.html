@@ -77,7 +77,7 @@
 <body>
     <div class="container">
         <h1>Password Recovery</h1>
-        <p>Please enter your email address to receive a password reset link.</p>
+        <p>Please enter your email address to reset your password.</p>
 
         <form method="POST" action="{{ url_for('recover_password') }}">
             <div class="form-group">
@@ -86,6 +86,7 @@
             </div>
             <div class="g-recaptcha" data-sitekey="6LdjJEEpAAAAAD5z67pKXk5d-8lhMGoVgT4NLo3_"></div>
             <button type="submit" class="btn btn-primary">Send Reset Link</button>
+            <br>
         </form>
         
 

@@ -43,10 +43,14 @@ def show_login():
 @app.route('/login', methods=["POST"])
 def login():
     users = mongo.db.users
-    login_user = users.find_one({'name': request.form['username']})
+    #login_user = users.find_one({'name': request.form['username']})
+    login_user = users.find_one({'email': request.form['email']})
     if login_user:
-        if bcrypt.checkpw(request.form['pass'].encode('utf-8'), login_user['password']):
+        """if bcrypt.checkpw(request.form['pass'].encode('utf-8'), login_user['password']):
             session['username'] = request.form['username']
+            return redirect(url_for('index'))"""
+        if bcrypt.checkpw(request.form['pass'].encode('utf-8'), login_user['password']):
+            session['username'] = login_user['name']  # Assuming 'name' is the field in your MongoDB
             return redirect(url_for('index'))
         else:
             return 'Invalid username or password'
@@ -72,11 +76,13 @@ def logout():
 def register():
     if request.method == 'POST':
         users_collection = mongo.db.users
-        existing_user = users_collection.find_one({'name': request.form['username']})
+        #existing_user = users_collection.find_one({'name': request.form['username']})
+        existing_user = users_collection.find_one({'email': request.form['email']})
 
         if existing_user is None:
             hashpass = bcrypt.hashpw(request.form['pass'].encode('utf-8'), bcrypt.gensalt())
-            users_collection.insert_one({'name': request.form['username'], 'password': hashpass})
+            #users_collection.insert_one({'name': request.form['username'], 'password': hashpass})
+            users_collection.insert_one({'name': request.form['username'], 'email': request.form['email'], 'password': hashpass})
             session['username'] = request.form['username']
             return redirect(url_for('index'))
         return 'Username already in database'

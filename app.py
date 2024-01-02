@@ -252,7 +252,7 @@ def add_insecure_headers(response):
 
 @app.route('/open-storage')
 def open_storage():
-    sensitive_data = {"admin_password": "a_random_string", "db_connection_string": "mongodb://localhost:27017/cs437"}
+    sensitive_data = {"admin_email": "admin@gmail.com", "admin_password": "admin", "db_connection_string": "mongodb://localhost:27017/cs437"}
     return jsonify(sensitive_data)
 
 #----------------------------------------------

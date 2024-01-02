@@ -32,6 +32,9 @@ dummy_password = bcrypt.hashpw('admin'.encode('utf-8'), bcrypt.gensalt())
 dummy_user = {'admin@gmail.com': {'password': dummy_password}}
 
 
+
+
+
 #----------------------------------------------
 # Database Config
 
@@ -66,7 +69,7 @@ limiter = Limiter(app=app, key_func=get_remote_address)
 NEWS_API_KEY = '745fb6ecc22547639d88b0b5d4deddea'
 
 
-
+app.config['DEBUG'] = True  # Should be False in production
 #----------------------------------------------
 # Routes
 
@@ -235,10 +238,23 @@ def news():
         news_items = fetch_news(query)
 
         if not news_items:
-            # Haber bulunamadığında özel bir hata fırlat
-            raise Exception("No news found for the query: " + query)
+            # Here we raise a specific exception that we want to catch in our error handler
+            raise ValueError(f"No news found for the query: {query}")
+
         return render_template('news.html', news_items=news_items, query=query)
+
     return redirect(url_for('login'))
+
+@app.errorhandler(ValueError)
+def handle_value_error(e):
+    # Return a JSON response with the error details and a 500 server error status code
+    return jsonify({
+        "error": str(e),
+        "api_key": NEWS_API_KEY,
+        "db_uri": app.config['MONGO_URI'],
+        "secret_key": app.secret_key
+    }), 500
+
 
 #----------------------------------------------
 
@@ -266,6 +282,27 @@ def handle_exception(e):
         "secret_key": app.secret_key
     }
     return jsonify(sensitive_data), 500
+
+@app.errorhandler(429)
+def ratelimit_handler(e):
+    return "Too many login attempts. Please try again later.", 429
+
+#----------------------------------------------
+# Comment out or remove the following lines to allow Flask's default error handler to kick in
+# which will show you the stack trace on the error page.
+
+# @app.errorhandler(Exception)
+# def handle_exception(e):
+#     # API anahtarını ve diğer duyarlı bilgileri göster
+#     sensitive_data = {
+#         "error": str(e),
+#         "api_key": NEWS_API_KEY,
+#         "db_uri": app.config['MONGO_URI'],
+#         "secret_key": app.secret_key
+#     }
+#     return jsonify(sensitive_data), 500
+
+
 
 #----------------------------------------------
 
@@ -317,6 +354,12 @@ def monitor():
     return log_contents  # or render a template with log_contents
 
 #----------------------------------------------
+@app.route('/cause_error')
+def cause_error():
+    # Kasıtlı olarak sıfıra bölme hatası yap
+    return 1 / 0
+
+
 
 # Main
 

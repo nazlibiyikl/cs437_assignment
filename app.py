@@ -21,6 +21,10 @@ from flask_limiter.util import get_remote_address
 import os
 import logging
 from logging.handlers import RotatingFileHandler
+from flask import g
+from flask import current_app
+from werkzeug.middleware.proxy_fix import ProxyFix
+
 
 #----------------------------------------------
 # Dummy user data
@@ -32,6 +36,7 @@ dummy_user = {'admin@gmail.com': {'password': dummy_password}}
 # Database Config
 
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_host=1)
 
 app.config['MONGO_DBNAME'] = 'cs437'
 app.config['MONGO_URI'] = 'mongodb://localhost:27017/cs437'
@@ -64,11 +69,47 @@ NEWS_API_KEY = '745fb6ecc22547639d88b0b5d4deddea'
 
 #----------------------------------------------
 # Routes
+
+def get_geolocation_info(client_ip):
+    try:
+        # Make a request to ipinfo.io to get geolocation information based on the user's IP address
+        response = requests.get(f"https://ipinfo.io/{client_ip}?token=7c95cd2402a5f5")
+
+        # Check if the request was successful (status code 200)
+        if response.status_code == 200:
+            # Parse the JSON response
+            data = response.json()
+
+            # Extract relevant information like country, region, city, etc.
+            country = data.get('country', '')
+            region = data.get('region', '')
+            city = data.get('city', '')
+
+            # Return a formatted string with geolocation information
+            return f"{city}, {region}, {country}"
+
+    except Exception as e:
+        # Handle any exceptions that might occur during the request
+        print(f"Error fetching geolocation information: {e}")
+
+    # Return a default value if unable to fetch geolocation information
+    return "Unknown"
+
+
+
 @app.before_request
 def log_request_info():
-    client_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+    # Try to get the real IP address from X-Forwarded-For header
+    client_ip = request.headers.get('X-Forwarded-For')
+    
+    # If X-Forwarded-For is not present, use request.remote_addr
+    if not client_ip:
+        client_ip = request.remote_addr
+
+    print(f"Client IP: {client_ip}")
     user_agent = request.user_agent.string
-    logger.info(f"Client IP: {client_ip}, User Agent: {user_agent}, URL: {request.url}, Method: {request.method}")
+    geolocation_info = get_geolocation_info(client_ip)
+    logger.info(f"Timestamp: {datetime.now()}, Client IP: {client_ip}, User Agent: {user_agent}, Geolocation: {geolocation_info}, URL: {request.url}, Method: {request.method}")
 
 
 @app.errorhandler(Exception)
@@ -99,12 +140,15 @@ def show_login():
     return render_template('index.html')
 
 login_attempts = defaultdict(list)
+
+
 @app.route('/login', methods=["POST"])
+@limiter.limit("3 per 3 minutes")
 def login():
     now = datetime.now()  # Define 'now' at the start of the function
-    email_attempted = request.form.get('email')
+    email_attempted = request.form.get('email_attempted')
     attempts = login_attempts[email_attempted]
-    logger.info(f"Login request from IP: {request.remote_addr} with email: {request.form.get('email_attempted')}")
+    logger.info(f"Login request from IP: {request.remote_addr} with email: {email_attempted}")
     attempts.append(now)
     # Keep only the attempts within the last 1 minute
     login_attempts[email_attempted] = [t for t in attempts if now - t < timedelta(minutes=1)]
@@ -115,7 +159,7 @@ def login():
         # You might want to take additional actions here, like temporarily blocking further attempts
 
     users = mongo.db.users
-    login_user = users.find_one({'email': request.form['email_attempted']})
+    login_user = users.find_one({'email': email_attempted})
 
     if login_user:
         # Check if the password is correct
@@ -124,11 +168,11 @@ def login():
             return redirect(url_for('index'))
         else:
             # Log failed login attempt due to incorrect password
-            logger.info(f"Failed login attempt for email: {request.form.get('email')}")
+            logger.info(f"Failed login attempt for email: {email_attempted}")
             return 'Invalid username or password'
     else:
         # Log failed login attempt due to email not found
-        logger.info(f"Failed login attempt for non-existent email: {request.form.get('email')}")
+        logger.info(f"Failed login attempt for non-existent email: {email_attempted}")
         return 'Invalid username or password'
 
 
@@ -303,4 +347,5 @@ def monitor():
 
 if __name__ == '__main__':
     app.secret_key='secretivekeyagain'
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0')
+

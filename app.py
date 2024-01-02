@@ -70,32 +70,18 @@ NEWS_API_KEY = '745fb6ecc22547639d88b0b5d4deddea'
 #----------------------------------------------
 # Routes
 
+
 def get_geolocation_info(client_ip):
-    try:
-        # Make a request to ipinfo.io to get geolocation information based on the user's IP address
-        response = requests.get(f"https://ipinfo.io/{client_ip}?token=7c95cd2402a5f5")
-
-        # Check if the request was successful (status code 200)
-        if response.status_code == 200:
-            # Parse the JSON response
-            data = response.json()
-
-            # Extract relevant information like country, region, city, etc.
-            country = data.get('country', '')
-            region = data.get('region', '')
-            city = data.get('city', '')
-
-            # Return a formatted string with geolocation information
-            return f"{city}, {region}, {country}"
-
-    except Exception as e:
-        # Handle any exceptions that might occur during the request
-        print(f"Error fetching geolocation information: {e}")
-
-    # Return a default value if unable to fetch geolocation information
-    return "Unknown"
-
-
+    api_key = "ca9359608bf099ae197d7ecf08b997d7"
+    response = requests.get(f"http://api.ipstack.com/{client_ip}?access_key=ca9359608bf099ae197d7ecf08b997d7")
+    if response.status_code == 200:
+        data = response.json()
+        country = data.get('country_name', '')
+        region = data.get('region_name', '')
+        city = data.get('city', '')
+        print(f"Geolocation Info: {city}, {region}, {country}")
+    else:
+        print(f"Error fetching geolocation information: {response.status_code}, {response.text}")
 
 @app.before_request
 def log_request_info():
@@ -109,8 +95,10 @@ def log_request_info():
     print(f"Client IP: {client_ip}")
     user_agent = request.user_agent.string
     geolocation_info = get_geolocation_info(client_ip)
-    logger.info(f"Timestamp: {datetime.now()}, Client IP: {client_ip}, User Agent: {user_agent}, Geolocation: {geolocation_info}, URL: {request.url}, Method: {request.method}")
+    host = request.headers.get('Host', '')
+    logger.info(f"Timestamp: {datetime.now()}, Client IP: {client_ip}, User Agent: {user_agent}, Host: {host}, Geolocation: {geolocation_info}, URL: {request.url}, Method: {request.method}")
 
+#----------------------------------------------
 
 @app.errorhandler(Exception)
 def handle_exception(e):
@@ -124,10 +112,19 @@ def handle_exception(e):
     }
     return jsonify(sensitive_data), 500
 
+@app.errorhandler(429)
+def ratelimit_handler(e):
+    logger.warning(f"Timestamp: {datetime.now()}, Rate Limit Exceeded: IP - {request.remote_addr}, Endpoint - {request.endpoint}")
+    return "Too many login attempts. Please try again later.", 429
+
+#----------------------------------------------
+
 @app.route('/test-error')
 def test_error():
     # Deliberately raise an exception
     raise ValueError("This is a test error")
+
+#----------------------------------------------
 
 @app.route('/')
 def index():
@@ -135,13 +132,14 @@ def index():
         return render_template('main.html', username=session['username'])
     return render_template('index.html')
 
+#----------------------------------------------
+
 @app.route('/login', methods=["GET"])
 def show_login():
     return render_template('index.html')
 
+
 login_attempts = defaultdict(list)
-
-
 @app.route('/login', methods=["POST"])
 @limiter.limit("3 per 3 minutes")
 def login():
@@ -258,12 +256,6 @@ def open_storage():
     return jsonify(sensitive_data)
 
 #----------------------------------------------
-
-@app.errorhandler(429)
-def ratelimit_handler(e):
-    return "Too many login attempts. Please try again later.", 429
-
-#----------------------------------------------
 @app.errorhandler(Exception)
 def handle_exception(e):
     # API anahtarını ve diğer duyarlı bilgileri göster
@@ -274,8 +266,6 @@ def handle_exception(e):
         "secret_key": app.secret_key
     }
     return jsonify(sensitive_data), 500
-
-
 
 #----------------------------------------------
 
@@ -298,25 +288,7 @@ def recover_password():
     
     return render_template('recover.html')
 
-
-"""@app.route('/reset_password/<token>', methods=['GET', 'POST'])
-def reset_token(token):
-    try:
-        serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
-        email = serializer.loads(token, salt=app.config['SECURITY_PASSWORD_SALT'], max_age=3600)
-    except:
-        return 'The reset link is invalid or has expired', 400
-
-    if request.method == 'POST':
-        new_password = request.form['password']
-        hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
-
-        users = mongo.db.users
-        users.update_one({'email': email}, {"$set": {'password': hashed_password}})
-
-        return redirect(url_for('login'))
-
-    return render_template('reset.html', token=token)"""
+#----------------------------------------------
 
 @app.route('/reset_password', methods=['GET', 'POST'])
 def reset_password():
@@ -336,12 +308,15 @@ def reset_password():
 
     return render_template('reset.html')
 
+#----------------------------------------------
+
 @app.route('/monitor')
 def monitor():
     with open('app.log', 'r') as file:
         log_contents = file.read()
     return log_contents  # or render a template with log_contents
 
+#----------------------------------------------
 
 # Main
 

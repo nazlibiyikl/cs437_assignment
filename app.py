@@ -272,7 +272,7 @@ def open_storage():
     return jsonify(sensitive_data)
 
 #----------------------------------------------
-<<<<<<< Updated upstream
+
 @app.errorhandler(Exception)
 def handle_exception(e):
     # API anahtarını ve diğer duyarlı bilgileri göster
@@ -283,7 +283,6 @@ def handle_exception(e):
         "secret_key": app.secret_key
     }
     return jsonify(sensitive_data), 500
-=======
 
 @app.errorhandler(429)
 def ratelimit_handler(e):
@@ -305,7 +304,7 @@ def ratelimit_handler(e):
 #     return jsonify(sensitive_data), 500
 
 
->>>>>>> Stashed changes
+
 
 #----------------------------------------------
 
@@ -350,7 +349,7 @@ def reset_password():
 
 #----------------------------------------------
 
-<<<<<<< Updated upstream
+
 @app.route('/monitor')
 def monitor():
     with open('app.log', 'r') as file:
@@ -358,21 +357,18 @@ def monitor():
     return log_contents  # or render a template with log_contents
 
 #----------------------------------------------
-=======
+
 @app.route('/cause_error')
 def cause_error():
     # Kasıtlı olarak sıfıra bölme hatası yap
     return 1 / 0
 
 
->>>>>>> Stashed changes
+
 
 # Main
 
 if __name__ == '__main__':
     app.secret_key='secretivekeyagain'
     app.run(debug=True, host='0.0.0.0')
-<<<<<<< Updated upstream
 
-=======
->>>>>>> Stashed changes

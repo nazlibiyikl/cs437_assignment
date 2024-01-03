@@ -27,10 +27,15 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 import random
 from flask_mail import Mail, Message
 from flask import flash
+from flask import redirect
 
 
 #----------------------------------------------
 # Dummy user data
+#This is not in database. Admin is not a user of us. Not created with register part
+#You can't change admin's password from I forgot my password
+#this is just a vulnerability to show dummy user which is a guessable password
+#like in modem's page for example admin, superonline passwords.
 dummy_password = bcrypt.hashpw('admin'.encode('utf-8'), bcrypt.gensalt())
 dummy_user = {'admin@gmail.com': {'password': dummy_password}}
 
@@ -43,6 +48,7 @@ dummy_user = {'admin@gmail.com': {'password': dummy_password}}
 
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_host=1)
+#Database entegrations
 
 app.config['MONGO_DBNAME'] = 'cs437'
 app.config['MONGO_URI'] = 'mongodb://localhost:27017/cs437'
@@ -54,6 +60,8 @@ app_directory = os.path.dirname(os.path.abspath(__file__))
 
 # Construct the absolute path for the log file
 log_file_path = os.path.join(app_directory, 'app.log')
+
+app.config['DEBUG'] = True  # Should be False in production
 
 #----------------------------------------------
 
@@ -68,10 +76,12 @@ mongo = PyMongo(app)
 # Initialize Flask-Limiter with get_remote_address
 limiter = Limiter(app=app, key_func=get_remote_address)
 
-
+#
 NEWS_API_KEY = '745fb6ecc22547639d88b0b5d4deddea'
 
-
+#When this is true and receive an error in html
+#User can see the project's code and where is the error
+#consequently codes of project are revealed
 app.config['DEBUG'] = True  # Should be False in production
 
 # Add your email configuration to the app
@@ -118,19 +128,20 @@ def log_request_info():
     logger.info(f"Timestamp: {datetime.now()}, Client IP: {client_ip}, User Agent: {user_agent}, Host: {host}, Geolocation: {geolocation_info}, URL: {request.url}, Method: {request.method}")
 
 #----------------------------------------------
+#This decorator is used to register an error handler for all types of exceptions. 
+#@app.errorhandler(ValueError)
+#def handle_value_error(e):
+    # Return a JSON response with the error details and a 500 server error status code
+ #   return jsonify({
+  #      "error": str(e),
+   #     "api_key": NEWS_API_KEY,
+    #    "db_uri": app.config['MONGO_URI'],
+     #  "secret_key": app.secret_key
+    #}), 500
 
-@app.errorhandler(Exception)
-def handle_exception(e):
-    logger.error(f"Error: {e}, Path: {request.path}, IP: {request.remote_addr}")
-    # Return a JSON response with the error information
-    sensitive_data = {
-        "error": str(e),
-        "api_key": NEWS_API_KEY,
-        "db_uri": app.config['MONGO_URI'],
-        "secret_key": app.secret_key
-    }
-    return jsonify(sensitive_data), 500
-
+#: This is specifically for handling rate limit errors. The 429 HTTP status code stands for
+# "Too Many Requests" and is triggered when a user exceeds the 
+#rate limit set in your Flask app (like with Flask-Limiter).
 @app.errorhandler(429)
 def ratelimit_handler(e):
     logger.warning(f"Timestamp: {datetime.now()}, Rate Limit Exceeded: IP - {request.remote_addr}, Endpoint - {request.endpoint}")
@@ -159,7 +170,7 @@ def index():
     return render_template('index.html')
 
 #----------------------------------------------
-
+#
 @app.route('/login', methods=["GET"])
 def show_login():
     return render_template('index.html')
@@ -167,6 +178,10 @@ def show_login():
 
 login_attempts = defaultdict(list)
 @app.route('/login', methods=["POST"])
+#this limiter part mentioned in the homework template.
+#This limits the number of requests a client can make in a period of time. 
+#If the client exceeds the limit, then the API returns error messages, 
+#typically with the HTTP status code 429.
 @limiter.limit("3 per 3 minutes")
 def login():
     now = datetime.now()  # Define 'now' at the start of the function
@@ -291,25 +306,24 @@ def add_insecure_headers(response):
 
 @app.route('/open-storage')
 def open_storage():
-    sensitive_data = {"admin_email": "admin@gmail.com", "admin_password": "admin", "db_connection_string": "mongodb://localhost:27017/cs437"}
-    return jsonify(sensitive_data)
+    return redirect("https://docs.google.com/spreadsheets/d/1_2rhL3VDwoUDEG21BBnO_se2ZIx4MhMym0nszTZYaN0/edit?usp=sharing")
 
 #----------------------------------------------
 
-@app.errorhandler(Exception)
-def handle_exception(e):
-    # API anahtarını ve diğer duyarlı bilgileri göster
-    sensitive_data = {
-        "error": str(e),
-        "api_key": NEWS_API_KEY,
-        "db_uri": app.config['MONGO_URI'],
-        "secret_key": app.secret_key
-    }
-    return jsonify(sensitive_data), 500
+#@app.errorhandler(Exception)
+#def handle_exception(e):
+ #   # API anahtarını ve diğer duyarlı bilgileri göster
+  #  sensitive_data = {
+   #     "error": str(e),
+     #   "db_uri": app.config['MONGO_URI'],
+    #    "api_key": NEWS_API_KEY,
+      #  "secret_key": app.secret_key
+    #}
+    #return jsonify(sensitive_data), 500
 
-@app.errorhandler(429)
-def ratelimit_handler(e):
-    return "Too many login attempts. Please try again later.", 429
+#@app.errorhandler(429)
+#def ratelimit_handler(e):
+ #   return "Too many login attempts. Please try again later.", 429
 
 #----------------------------------------------
 # Comment out or remove the following lines to allow Flask's default error handler to kick in

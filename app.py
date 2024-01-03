@@ -24,6 +24,9 @@ from logging.handlers import RotatingFileHandler
 from flask import g
 from flask import current_app
 from werkzeug.middleware.proxy_fix import ProxyFix
+import random
+from flask_mail import Mail, Message
+from flask import flash
 
 
 #----------------------------------------------
@@ -70,6 +73,19 @@ NEWS_API_KEY = '745fb6ecc22547639d88b0b5d4deddea'
 
 
 app.config['DEBUG'] = True  # Should be False in production
+
+# Add your email configuration to the app
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+app.config['MAIL_USERNAME'] = 'cs437assignment@gmail.com'  # Replace with your email
+app.config['MAIL_PASSWORD'] = 'bhhv zetd osgt lxgy'    # Replace with your email password
+app.config['MAIL_DEBUG'] = True
+
+
+# Initialize Flask-Mail
+mail = Mail(app)
 #----------------------------------------------
 # Routes
 
@@ -126,6 +142,13 @@ def ratelimit_handler(e):
 def test_error():
     # Deliberately raise an exception
     raise ValueError("This is a test error")
+
+@app.route('/test_email')
+def test_email():
+    msg = Message('Test Email', sender='cs437assignment@gmail.com', recipients=['nazlibiyikli@gmail.com'])
+    msg.body = 'This is a test email from your Flask app.'
+    mail.send(msg)
+    return 'Test email sent!'
 
 #----------------------------------------------
 
@@ -268,7 +291,7 @@ def add_insecure_headers(response):
 
 @app.route('/open-storage')
 def open_storage():
-    sensitive_data = {"ad": "a_random_string", "db_connection_string": "mongodb://localhost:27017/cs437"}
+    sensitive_data = {"admin_email": "admin@gmail.com", "admin_password": "admin", "db_connection_string": "mongodb://localhost:27017/cs437"}
     return jsonify(sensitive_data)
 
 #----------------------------------------------
@@ -308,7 +331,7 @@ def ratelimit_handler(e):
 
 #----------------------------------------------
 
-@app.route('/recover_password', methods=['GET', 'POST'])
+"""@app.route('/recover_password', methods=['GET', 'POST'])
 def recover_password():
     if request.method == 'POST':
         # Verify reCAPTCHA
@@ -324,12 +347,113 @@ def recover_password():
 
         session['reset_email'] = email  # Store email in session
         return redirect(url_for('reset_password'))
-    
+    return render_template('recover.html')"""
+
+"""@app.route('/recover_password', methods=['GET', 'POST'])
+def recover_password():
+    if request.method == 'POST':
+        # Verify reCAPTCHA (optional)
+        recaptcha_response = request.form.get('g-recaptcha-response')
+        # You should verify the reCAPTCHA response with Google's API here
+
+        # Assuming reCAPTCHA verification is successful
+        email = request.form['email']
+        logger.info(f"Password recovery attempted from IP: {request.remote_addr} with email: {request.form.get('email')}")
+
+        # Generate a random 6-digit OTP
+        otp = str(random.randint(100000, 999999))
+
+        # Store the OTP in the session
+        session['otp'] = otp
+        
+
+        # Send the OTP to the user's email (replace with your email sending code)
+        send_otp_to_email(email, otp)
+
+        # Redirect to the OTP verification page
+        return redirect(url_for('verify_otp'))
+
+    return render_template('recover.html')"""
+@app.route('/recover_password', methods=['GET', 'POST'])
+def recover_password():
+    if request.method == 'POST':
+        # Verify reCAPTCHA (optional)
+        recaptcha_response = request.form.get('g-recaptcha-response')
+        # You should verify the reCAPTCHA response with Google's API here
+
+        # Assuming reCAPTCHA verification is successful
+        email = request.form['email']
+        logger.info(f"Password recovery attempted from IP: {request.remote_addr} with email: {email}")
+
+        # Generate a random 6-digit OTP
+        otp = str(random.randint(100000, 999999))
+
+        # Store the OTP in the session with the consistent key 'reset_email'
+        session['reset_email'] = email
+        session['otp'] = otp
+
+        # Send the OTP to the user's email (replace with your email sending code)
+        send_otp_to_email(email, otp)
+
+        # Redirect to the OTP verification page
+        return redirect(url_for('verify_otp'))
+
     return render_template('recover.html')
+
+
+def send_otp_to_email(email, otp):
+    # Create a message with the OTP
+    message = Message('Subject: OTP for Password Reset',
+                      sender='cs437assignment@gmail.com',  # Replace with your email address
+                      recipients=[email])
+    message.body = f'Your OTP for password reset is: {otp}'
+
+    # Send the message
+    try:
+        mail.send(message)
+        print(f"OTP sent to {email}")
+    except Exception as e:
+        print(f"Failed to send OTP to {email}. Error: {e}")
+
+"""@app.route('/verify_otp', methods=['GET', 'POST'])
+def verify_otp():
+    if request.method == 'POST':
+        entered_otp = request.form['otp']
+
+        # Check if the entered OTP matches the one stored in the session
+        if entered_otp == session.get('otp'):
+            # If OTP is valid, proceed to password reset page
+            return redirect(url_for('reset_password'))
+        else:
+            # If OTP is invalid, display an error message
+            flash('Invalid OTP. Please try again.', 'error')
+
+    return render_template('verify_otp.html')"""
+@app.route('/verify_otp', methods=['GET', 'POST'])
+def verify_otp():
+    if request.method == 'POST':
+        entered_otp = request.form.get('otp')
+
+        # Check if the entered OTP matches the one stored in the session
+        if entered_otp == session.get('otp'):
+            # If OTP is valid, clear the OTP from the session and proceed to password reset page
+            session.pop('otp', None)
+            app.logger.info(f"OTP verification successful. Redirecting to reset_password.")
+            return redirect(url_for('reset_password'))
+        else:
+            # If OTP is invalid, log the event and display an error message
+            app.logger.warning(f"Invalid OTP entered: {entered_otp}. Expected OTP: {session.get('otp')}")
+            flash('Invalid OTP. Please try again.', 'error')
+
+    return render_template('verify_otp.html')
+
+
+
+
 
 #----------------------------------------------
 
-@app.route('/reset_password', methods=['GET', 'POST'])
+"""@app.route('/reset_password', methods=['GET', 'POST'])
 def reset_password():
     if 'reset_email' not in session:
         return redirect(url_for('recover_password'))
@@ -345,7 +469,41 @@ def reset_password():
 
         return redirect(url_for('login'))
 
+    return render_template('reset.html')"""
+"""@app.route('/reset_password', methods=['GET', 'POST'])
+def reset_password():
+    if 'otp' not in session:
+        return redirect(url_for('recover_password'))
+
+    if request.method == 'POST':
+        new_password = request.form['password']
+        hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
+
+        users = mongo.db.users
+        users.update_one({'email': session.pop('reset_email')}, {"$set": {'password': hashed_password}})
+        logger.info(f"Password reset by IP: {request.remote_addr}")
+
+        return redirect(url_for('login'))
+
+    return render_template('reset.html')"""
+@app.route('/reset_password', methods=['GET', 'POST'])
+def reset_password():
+    if 'reset_email' not in session:  # Use the consistent key 'reset_email'
+        return redirect(url_for('recover_password'))
+
+    if request.method == 'POST':
+        new_password = request.form['password']
+        hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
+
+        users = mongo.db.users
+        users.update_one({'email': session.pop('reset_email')}, {"$set": {'password': hashed_password}})
+        logger.info(f"Password reset by IP: {request.remote_addr}")
+
+        return redirect(url_for('login'))
+
     return render_template('reset.html')
+
+
 
 #----------------------------------------------
 

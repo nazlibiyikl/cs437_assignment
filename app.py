@@ -99,7 +99,7 @@ mail = Mail(app)
 #----------------------------------------------
 # Routes
 
-
+#is designed to retrieve geolocation information based on a given IP address
 def get_geolocation_info(client_ip):
     api_key = "ca9359608bf099ae197d7ecf08b997d7"
     response = requests.get(f"http://api.ipstack.com/{client_ip}?access_key=ca9359608bf099ae197d7ecf08b997d7")
@@ -112,6 +112,8 @@ def get_geolocation_info(client_ip):
     else:
         print(f"Error fetching geolocation information: {response.status_code}, {response.text}")
 
+#designed to log information about incoming requests before they are processed by the application's routes. 
+#This function, log_request_info, is registered to run before each request using the @app.before_request decorator
 @app.before_request
 def log_request_info():
     # Try to get the real IP address from X-Forwarded-For header
@@ -142,24 +144,14 @@ def log_request_info():
 #: This is specifically for handling rate limit errors. The 429 HTTP status code stands for
 # "Too Many Requests" and is triggered when a user exceeds the 
 #rate limit set in your Flask app (like with Flask-Limiter).
+
 @app.errorhandler(429)
 def ratelimit_handler(e):
     logger.warning(f"Timestamp: {datetime.now()}, Rate Limit Exceeded: IP - {request.remote_addr}, Endpoint - {request.endpoint}")
     return "Too many login attempts. Please try again later.", 429
 
 #----------------------------------------------
-
-@app.route('/test-error')
-def test_error():
-    # Deliberately raise an exception
-    raise ValueError("This is a test error")
-
-@app.route('/test_email')
-def test_email():
-    msg = Message('Test Email', sender='cs437assignment@gmail.com', recipients=['nazlibiyikli@gmail.com'])
-    msg.body = 'This is a test email from your Flask app.'
-    mail.send(msg)
-    return 'Test email sent!'
+#
 
 #----------------------------------------------
 
@@ -171,11 +163,13 @@ def index():
 
 #----------------------------------------------
 #
+#The code snippet you've provided defines a function index in a Flask web application
+#, which is associated with the root URL 
 @app.route('/login', methods=["GET"])
 def show_login():
     return render_template('index.html')
 
-
+#login page 
 login_attempts = defaultdict(list)
 @app.route('/login', methods=["POST"])
 #this limiter part mentioned in the homework template.
@@ -234,14 +228,18 @@ def login():
 
     return 'Invalid username or password'"""
 #----------------------------------------------
+#logout button to exit
 @app.route('/logout')
 def logout():
-    # Kullanıcı oturumunu sonlandır
+    # end sessions
     logger.info(f"User '{session['username']}' logged out from IP: {request.remote_addr}")
     session.pop('username', None)
-    # Ana sayfaya veya giriş sayfasına yönlendir
+    # Route to main page
     return redirect(url_for('index'))
 #----------------------------------------------
+#registering to web page 
+#when create a user
+#directly route to main page
 @app.route('/register', methods=['POST', 'GET'])
 def register():
     logger.info(f"Register request from IP: {request.remote_addr} with email: {request.form.get('email')}")
@@ -260,7 +258,8 @@ def register():
     return render_template('register.html')
 
 #----------------------------------------------
-
+#retreiving news api
+#found it on github
 def fetch_news(query=None):
     base_url = "https://newsapi.org/v2/top-headlines"
     params = {'apiKey': NEWS_API_KEY, 'language': 'en', 'q': query if query else ''}
@@ -268,7 +267,8 @@ def fetch_news(query=None):
     if response.status_code == 200:
         return response.json().get('articles', [])
     return []
-
+#news route to see headlines of news
+#when clicked route to news page
 @app.route('/news')
 def news():
     if 'username' in session:
@@ -282,7 +282,10 @@ def news():
         return render_template('news.html', news_items=news_items, query=query)
 
     return redirect(url_for('login'))
-
+#when user search a news that does not exist 
+#show the important datas to user 
+#vulnearbility
+#shows our api key, mongo uri and secret key
 @app.errorhandler(ValueError)
 def handle_value_error(e):
     # Return a JSON response with the error details and a 500 server error status code
@@ -295,7 +298,11 @@ def handle_value_error(e):
 
 
 #----------------------------------------------
-
+## when user examine the web page
+#then selectt network
+#then enter to /news to filter 
+#then headers 
+#can see server and x-powered-by which are important informations
 @app.after_request
 def add_insecure_headers(response):
     response.headers['Server'] = 'Flask/1.1'
@@ -388,6 +395,8 @@ def recover_password():
         return redirect(url_for('verify_otp'))
 
     return render_template('recover.html')"""
+#web page to recover password sends email to user and
+#recapthcha entegreated
 @app.route('/recover_password', methods=['GET', 'POST'])
 def recover_password():
     if request.method == 'POST':
@@ -414,7 +423,7 @@ def recover_password():
 
     return render_template('recover.html')
 
-
+##sending email for restoring password
 def send_otp_to_email(email, otp):
     # Create a message with the OTP
     message = Message('Subject: OTP for Password Reset',

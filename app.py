@@ -272,6 +272,8 @@ def register():
 #----------------------------------------------
 #retreiving news api
 #found it on github
+#seeing headlines and short explanations of news
+#when clicked routes us to news webpage
 def fetch_news(query=None):
     base_url = "https://newsapi.org/v2/top-headlines"
     params = {'apiKey': NEWS_API_KEY, 'language': 'en', 'q': query if query else ''}
@@ -322,6 +324,10 @@ def add_insecure_headers(response):
     return response
 
 #----------------------------------------------
+##This vulnerablety comes from cloud storage
+#when user enters this adreess with or without logging
+#can able to see the 
+#database in excel format that stored in google drive
 
 @app.route('/open-storage')
 def open_storage():
@@ -409,6 +415,9 @@ def recover_password():
     return render_template('recover.html')"""
 #web page to recover password sends email to user and
 #recapthcha entegreated
+#created site and secret key for here
+#from google recapthcha
+
 @app.route('/recover_password', methods=['GET', 'POST'])
 def recover_password():
     if request.method == 'POST':
@@ -464,6 +473,10 @@ def verify_otp():
             flash('Invalid OTP. Please try again.', 'error')
 
     return render_template('verify_otp.html')"""
+#defines a route for verifying a One-Time Password (OTP).
+#maps the URL '/verify_otp' to the verify_otp function. 
+#The function can handle both GET and POST requests. 
+#
 @app.route('/verify_otp', methods=['GET', 'POST'])
 def verify_otp():
     if request.method == 'POST':
@@ -521,6 +534,10 @@ def reset_password():
         return redirect(url_for('login'))
 
     return render_template('reset.html')"""
+#defines a route for resetting a user's password. 
+#def reset_password(): This defines the function reset_password, 
+#which will be called when the '/reset_password' route is accessed.
+
 @app.route('/reset_password', methods=['GET', 'POST'])
 def reset_password():
     if 'reset_email' not in session:  # Use the consistent key 'reset_email'
@@ -541,8 +558,9 @@ def reset_password():
 
 
 #----------------------------------------------
-
-
+# route decorator that maps the URL '/monitor' to the monitor function
+#with open opens the log file 'app.log' in read mode
+#return log_contents: This returns the contents of the log file as a response to the web request
 @app.route('/monitor')
 def monitor():
     with open('app.log', 'r') as file:

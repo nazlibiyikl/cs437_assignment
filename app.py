@@ -36,8 +36,20 @@ from flask import redirect
 #You can't change admin's password from I forgot my password
 #this is just a vulnerability to show dummy user which is a guessable password
 #like in modem's page for example admin, superonline passwords.
+# Hash the password 'admin'
 dummy_password = bcrypt.hashpw('admin'.encode('utf-8'), bcrypt.gensalt())
+
+# Store the hashed password in the dummy_user dictionary
 dummy_user = {'admin@gmail.com': {'password': dummy_password}}
+entered_password = 'admin'  # The password entered by the user
+stored_password = dummy_user['admin@gmail.com']['password']  # The hashed password from the dictionary
+
+# Check if the entered password matches the stored hashed password
+if bcrypt.checkpw(entered_password.encode('utf-8'), stored_password):
+    print("Login successful")
+else:
+    print("Login failed")
+
 
 
 
@@ -538,10 +550,12 @@ def monitor():
     return log_contents  # or render a template with log_contents
 
 #----------------------------------------------
-
+#Creating a vulnerability with the code
+#we turned debug = true
+#with this can able to see codes in html
 @app.route('/cause_error')
 def cause_error():
-    # Kasıtlı olarak sıfıra bölme hatası yap
+    # Make errror with 1 dividing to 0 
     return 1 / 0
 
 

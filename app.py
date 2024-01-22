@@ -36,7 +36,8 @@ from flask import redirect
 #You can't change admin's password from I forgot my password
 #this is just a vulnerability to show dummy user which is a guessable password
 #like in modem's page for example admin, superonline passwords.
-# Hash the password 'admin'
+# Hash the password 'admin' 
+"""""
 dummy_password = bcrypt.hashpw('admin'.encode('utf-8'), bcrypt.gensalt())
 
 # Store the hashed password in the dummy_user dictionary
@@ -44,15 +45,32 @@ dummy_user = {'admin@gmail.com': {'password': dummy_password}}
 entered_password = 'admin'  # The password entered by the user
 stored_password = dummy_user['admin@gmail.com']['password']  # The hashed password from the dictionary
 
+
+# Check if the entered password matches the stored hashed password
+if bcrypt.checkpw(entered_password.encode('utf-8'), stored_password):
+    print("Login successful")
+else:
+    print("Login failed")"""""
+
+hashed_password = bcrypt.hashpw('admin'.encode('utf-8'), bcrypt.gensalt())
+print(hashed_password)  # Use this output in your application
+
+# In your application
+# Hardcoded hashed password
+dummy_password = b'$2b$12$2f/IwTyN2s3IbxoGMzJMmeKBP864fMMsSHqYl6MBbTFP7cDhm1soa'
+
+# Store the hashed password in the dummy_user dictionary
+dummy_user = {'admin@gmail.com': {'password': dummy_password}}
+entered_password = 'admin'  # The password entered by the user
+stored_password = dummy_user['admin@gmail.com']['password']  # The hardcoded hashed password
+"""""
 # Check if the entered password matches the stored hashed password
 if bcrypt.checkpw(entered_password.encode('utf-8'), stored_password):
     print("Login successful")
 else:
     print("Login failed")
 
-
-
-
+"""""
 
 
 #----------------------------------------------
@@ -104,7 +122,6 @@ app.config['MAIL_USE_SSL'] = False
 app.config['MAIL_USERNAME'] = 'cs437assignment@gmail.com'  # Replace with your email
 app.config['MAIL_PASSWORD'] = 'bhhv zetd osgt lxgy'    # Replace with your email password
 app.config['MAIL_DEBUG'] = True
-
 
 # Initialize Flask-Mail
 mail = Mail(app)
@@ -195,30 +212,47 @@ def login():
     attempts = login_attempts[email_attempted]
     logger.info(f"Login request from IP: {request.remote_addr} with email: {email_attempted}")
     attempts.append(now)
-    # Keep only the attempts within the last 1 minute
-    login_attempts[email_attempted] = [t for t in attempts if now - t < timedelta(minutes=1)]
 
-    # Check for potential brute force attack
-    if len(login_attempts[email_attempted]) > 5:
-        logger.warning(f"Suspicious activity detected for email: {email_attempted}")
-        # You might want to take additional actions here, like temporarily blocking further attempts
-
-    users = mongo.db.users
-    login_user = users.find_one({'email': email_attempted})
-
-    if login_user:
-        # Check if the password is correct
-        if bcrypt.checkpw(request.form['pass'].encode('utf-8'), login_user['password']):
-            session['username'] = login_user['name']  # Assuming 'name' is the field in your MongoDB
+    if email_attempted == 'admin@gmail.com':
+        stored_password = dummy_user['admin@gmail.com']['password']
+        print(f"Attempting admin login: {entered_password}, {stored_password}")
+    
+        if bcrypt.checkpw(entered_password.encode('utf-8'), stored_password):
+            print("Admin login successful")
+            session['username'] = 'admin' 
             return redirect(url_for('index'))
+            # Set session and redirect as needed
         else:
-            # Log failed login attempt due to incorrect password
-            logger.info(f"Failed login attempt for email: {email_attempted}")
-            return 'Invalid username or password'
+            print("Admin login failed")
+
     else:
-        # Log failed login attempt due to email not found
-        logger.info(f"Failed login attempt for non-existent email: {email_attempted}")
-        return 'Invalid username or password'
+        # Keep only the attempts within the last 1 minute
+        login_attempts[email_attempted] = [t for t in attempts if now - t < timedelta(minutes=1)]
+
+        # Check for potential brute force attack
+        if len(login_attempts[email_attempted]) > 5:
+            logger.warning(f"Suspicious activity detected for email: {email_attempted}")
+            # You might want to take additional actions here, like temporarily blocking further attempts
+
+        users = mongo.db.users
+        login_user = users.find_one({'email': email_attempted})
+
+
+        if login_user:
+            # Check if the password is correct
+            if bcrypt.checkpw(request.form['pass'].encode('utf-8'), login_user['password']):
+                session['username'] = login_user['name']  # Assuming 'name' is the field in your MongoDB
+                return redirect(url_for('index'))
+            else:
+                # Log failed login attempt due to incorrect password
+                logger.info(f"Failed login attempt for email: {email_attempted}")
+                return 'Invalid username or password'
+        else:
+            # Log failed login attempt due to email not found
+            logger.info(f"Failed login attempt for non-existent email: {email_attempted}")
+            return 'Invalid username or password'
+        
+    return 'Invalid login attempt'
 
 
 """@app.route('/login', methods=["POST"])
